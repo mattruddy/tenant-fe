@@ -8,19 +8,15 @@ import Home from "../../pages/Home"
 import Login from "../../pages/Login"
 import SignUp from "../../pages/SignUp"
 import Invoice from "../../pages/Invoice"
-import { Container, Navbar, Button } from "reactstrap"
-import classNames from "classnames"
-import AddUnit from "../../pages/Home/AddUnit"
-import AddTenant from "../../pages/Home/AddTenant"
-import AddLease from "../../pages/Home/AddLease"
-import AddInvoice from "../../pages/Home/AddInvoice"
+import { Container } from "reactstrap"
+import AddUnit from "../../pages/AddUnit"
+import AddTenant from "../../pages/AddTenant"
+import AddLease from "../../pages/AddLease"
+import AddInvoice from "../../pages/AddInvoice"
+import Unit from "../../pages/Unit"
+import AddExpense from "../../pages/AddExpense"
 
-interface ContentProps {
-  isOpen: boolean
-  toggle: () => void
-}
-
-const Content: React.FC<ContentProps> = ({ isOpen, toggle }) => {
+const Content: React.FC = () => {
   const [token, setToken] = useRecoilState(tokenState)
   const [isLoggedIn, setIsLoggedIn] = useRecoilState(isLoggedInState)
   const setProfile = useSetRecoilState(profileState)
@@ -47,7 +43,7 @@ const Content: React.FC<ContentProps> = ({ isOpen, toggle }) => {
   }
 
   return (
-    <Container fluid className={classNames("content", { "is-open": isOpen })}>
+    <Container fluid>
       {isLoggedIn !== undefined && (
         <Switch>
           <Route
@@ -56,23 +52,35 @@ const Content: React.FC<ContentProps> = ({ isOpen, toggle }) => {
             render={() => (isLoggedIn ? <Home /> : <Redirect to="/login" />)}
           />
           <Route
-            path="/unit"
-            render={() => (isLoggedIn ? <AddUnit /> : <Redirect to="/login" />)}
+            path="/unit/:id"
+            render={() => (isLoggedIn ? <Unit /> : <Redirect to="/login" />)}
+            exact
           />
           <Route
-            path="/tenant"
+            path="/add/unit"
+            render={() => (isLoggedIn ? <AddUnit /> : <Redirect to="/login" />)}
+            exact
+          />
+          <Route
+            path="/tenant/add/:unitId"
             render={() =>
               isLoggedIn ? <AddTenant /> : <Redirect to="/login" />
             }
           />
           <Route
-            path="/lease"
+            path="/expense/add/:unitId"
+            render={() =>
+              isLoggedIn ? <AddExpense /> : <Redirect to="/login" />
+            }
+          />
+          <Route
+            path="/lease/add/:unitId"
             render={() =>
               isLoggedIn ? <AddLease /> : <Redirect to="/login" />
             }
           />
           <Route
-            path="/invoice"
+            path="/invoice/add"
             render={() =>
               isLoggedIn ? <AddInvoice /> : <Redirect to="/login" />
             }

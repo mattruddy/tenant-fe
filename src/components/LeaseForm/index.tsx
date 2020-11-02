@@ -2,15 +2,20 @@ import React, { memo, FormEvent, useState, useEffect } from "react"
 import { Form, FormGroup, Row, Col, Label, Input, Button } from "reactstrap"
 import { useRecoilValue, useRecoilState } from "recoil"
 import { profileState, tokenState } from "../../store"
-import { addTenant, addLease } from "../../data/api"
+import { addLease } from "../../data/api"
 import { Profile, Unit, Lease } from "../../utils/types"
+import { useParams } from "react-router-dom"
+
+interface PathProps {
+  unitId: string
+}
 
 const LeaseForm: React.FC = () => {
   const [startDate, setStartDate] = useState<string>()
   const [endDate, setEndDate] = useState<string>()
-  const [unitId, setUnitId] = useState<number>()
   const [profile, setProfile] = useRecoilState(profileState)
   const token = useRecoilValue(tokenState)
+  const {unitId} = useParams<PathProps>()
   
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -18,10 +23,10 @@ const LeaseForm: React.FC = () => {
       token!,
       new Date(startDate!),
       new Date(endDate!),
-      unitId!
+      Number(unitId)!
     )
 
-    let newUnit = profile?.units.find((unit) => unit.id === unitId)
+    let newUnit = profile?.units.find((unit) => unit.id === Number(unitId))
     newUnit = {
       ...newUnit,
       leases: [resp, ...newUnit!.leases],
@@ -32,13 +37,12 @@ const LeaseForm: React.FC = () => {
         ({
           units: [
             newUnit,
-            ...prev!.units.filter((unit) => unitId! !== unit.id),
+            ...prev!.units.filter((unit) => Number(unitId)! !== unit.id),
           ],
         } as Profile)
     )
     setStartDate(undefined)
     setEndDate(undefined)
-    setUnitId(undefined)
   }
 
 
@@ -46,18 +50,7 @@ const LeaseForm: React.FC = () => {
   return (
     <Form onSubmit={onSubmit}>
       <FormGroup>
-        <Label>Unit</Label>
-        <Input
-          type="select"
-          onChange={(e) => setUnitId(Number(e.target.value))}
-        >
-          <option selected disabled>
-            Select Unit
-          </option>
-          {profile?.units.map((unit, i) => (
-            <option value={unit.id}>{unit.address}</option>
-          ))}
-        </Input>
+        <Label>{profile?.units.find(unit => unit.id === Number(unitId))?.address}</Label>
       </FormGroup>
       <Row form>
         <Col md={6}>

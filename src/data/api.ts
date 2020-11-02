@@ -92,6 +92,16 @@ export const addUnit = async (
   return (await resp.json()) as Unit
 }
 
+export const deleteUnit = (id: number, token: string) => {
+  fetch(`${basePath}/secure/unit/${id}`, {
+    method: "DELETE",     
+    headers: {
+      "content-type": "application/json",
+      Authorization: `Bearer ${token}`,
+    }
+  })
+}
+
 export const addTenant = async (
   token: string,
   firstName: string,
@@ -152,4 +162,25 @@ export const addInvoice = async (
     }),
   })
   return (await resp.json()) as Invoice
+}
+
+export const addExpense = async (
+  token: string,
+  amount: number,
+  createDate: Date,
+  desc: string,
+  unitId: number
+) => {
+  const resp = await fetch(`${basePath}/secure/expense/${unitId}`, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      desc: desc,
+      amount: amount,
+      createDate: createDate
+    }),
+  })
 }

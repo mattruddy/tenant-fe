@@ -1,88 +1,70 @@
-import { memo, Fragment } from "react"
-import { Col, Row, Card, CardHeader, CardBody, CardTitle } from "reactstrap"
-import { Unit } from "../../utils/types"
+import { memo, Fragment, useState } from "react"
+import {
+  Col,
+  Row,
+  Modal,
+  ModalBody,
+  ModalHeader,
+  Card,
+  CardHeader,
+  CardBody,
+} from "reactstrap"
+import { Unit, Tenant } from "../../utils/types"
 import React from "react"
-import { dateFormat, currencyFormatter } from "../../utils/helpers"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faCheck } from "@fortawesome/free-solid-svg-icons"
+import InvoiceTable from "./InvoiceTable"
+import { capitalize, dateFormat } from "../../utils/helpers"
+import { Link } from "react-router-dom"
 
 interface UnitBlockProps {
   units: Unit[]
 }
 
 const UnitBlock: React.FC<UnitBlockProps> = ({ units }) => {
+  const [isOpen, setIsOpen] = useState<boolean>(false)
+  const [currentTenant, setCurrentTenant] = useState<Tenant>()
+
+  const openInvoice = (tenant: Tenant) => {
+    setCurrentTenant(tenant)
+    setIsOpen(true)
+  }
+
   return (
     <Fragment>
       {units.map((unit, i) => (
         <Row key={i}>
           <Col className="mb-3">
+            <Link to={`/unit/${unit.id}`}>
             <Card>
               <CardHeader>
-                <CardTitle> {unit.address}</CardTitle>
+                {unit.address}, {unit.city} {unit.state} {unit.zip}
               </CardHeader>
               <CardBody>
-                {unit.leases.map((lease, i) => {
-                  return (
-                    <Row key={i}>
-                      <Col>
-                        <Card>
-                          <CardHeader>
-                            <span>{dateFormat(lease.startDate)}</span>
-                            <span> - </span>
-                            <span>{dateFormat(lease.endDate)}</span>
-                          </CardHeader>
-                          <CardBody>
-                            <Card>
-                              <CardBody>
-                                {lease.tenants.map((tenant, i) => {
-                                  return (
-                                    <div key={i}>
-                                      <Row>
-                                        <Col>{`${tenant.firstName} ${tenant.lastName}'s Invoices`}</Col>
-                                      </Row>
-                                      {tenant.invoices.map((invoice, i) => {
-                                        return (
-                                          <div
-                                            key={i}
-                                            style={{
-                                              display: "flex",
-                                              flexDirection: "column",
-                                              margin: "16px",
-                                            }}
-                                          >
-                                            {currencyFormatter.format(
-                                              invoice.amount
-                                            )}
-                                            {invoice.token}
-                                            {invoice.paid ? (
-                                              <FontAwesomeIcon
-                                                color="green"
-                                                icon={faCheck}
-                                              />
-                                            ) : (
-                                              <span color="red">PENDING</span>
-                                            )}
-                                            {invoice.paidDate &&
-                                              dateFormat(invoice.paidDate)}
-                                          </div>
-                                        )
-                                      })}
-                                    </div>
-                                  )
-                                })}
-                              </CardBody>
-                            </Card>
-                          </CardBody>
-                        </Card>
-                      </Col>
-                    </Row>
-                  )
-                })}
+                {unit.leases.map((lease, i) => (
+                  <div style={{
+                    display: "flex",
+                    flexDirection: "column"
+                  }} key={i}>
+                    <span><b>{dateFormat(lease.startDate)} - {dateFormat(lease.endDate)}</b></span>
+                    {lease.tenants.map((tenant, i) => (
+                      <span key={i}>{capitalize(tenant.firstName)} {capitalize(tenant.lastName)}</span>
+                    ))}
+                  </div>
+                ))}
               </CardBody>
             </Card>
+            </Link>
           </Col>
         </Row>
       ))}
+      <Modal isOpen={isOpen} toggle={() => setIsOpen(!isOpen)}>
+        <ModalHeader>
+          {currentTenant &&
+            `${capitalize(currentTenant.firstName)} ${capitalize(currentTenant.lastName)}`}
+        </ModalHeader>
+        <ModalBody>
+          {currentTenant && <InvoiceTable tenant={currentTenant} />}
+        </ModalBody>
+      </Modal>
     </Fragment>
   )
 }

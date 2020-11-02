@@ -38,6 +38,14 @@ export interface Unit {
   zip: string
   state: string
   leases: Lease[]
+  expenseResponses: Expense[]
+}
+
+export interface Expense {
+  id: number
+  desc: string
+  amount: number 
+  createDate: Date
 }
 
 export interface Profile {

@@ -1,18 +1,18 @@
 import { memo } from "react"
 import React from "react"
 import { Container, Card, CardBody } from "reactstrap"
-import UnitForm from "../../../components/UnitForm"
+import TenantForm from "../../components/TenantForm"
 
-const AddUnit: React.FC = () => {
+const AddTenant: React.FC = () => {
   return (
     <Container fluid>
       <Card>
         <CardBody>
-          <UnitForm />
+          <TenantForm />
         </CardBody>
       </Card>
     </Container>
   )
 }
 
-export default memo(AddUnit)
+export default memo(AddTenant)
